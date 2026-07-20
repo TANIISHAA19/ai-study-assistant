@@ -16,6 +16,7 @@ import summarizeRoutes from "./routes/summarizeRoutes.js";
 import pdfChatRoutes from "./routes/pdfChatRoutes.js";
 import flashcardRoutes from "./routes/flashcardRoutes.js";
 import plannerRoutes from "./routes/plannerRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 import connectDB from "./config/db.js";
@@ -40,6 +41,8 @@ app.use("/api/summarize", summarizeRoutes);
 app.use("/api/pdf-chat", pdfChatRoutes);
 app.use("/api/flashcards", flashcardRoutes);
 app.use("/api/planner", plannerRoutes);
+app.use("/api/auth", authRoutes);
+
 
 
 const PORT = process.env.PORT || 3000;
