@@ -1,4 +1,5 @@
 import ai from "../config/gemini.js";
+import Quiz from "../models/Quiz.js";
 
 export const generateQuiz = async (req, res) => {
 
@@ -29,13 +30,25 @@ export const generateQuiz = async (req, res) => {
 
 
         const response = await ai.models.generateContent({
-           model: "gemini-3.5-flash",
+            model: "gemini-3.5-flash-lite",
             contents: prompt
         });
 
 
+        const quizData = JSON.parse(response.text);
+
+
+        const savedQuiz = await Quiz.create({
+            user: req.user._id,
+            topic,
+            questions: quizData
+        });
+
+
         res.json({
-            quiz: response.text
+            message: "Quiz generated successfully",
+            quiz: quizData,
+            id: savedQuiz._id
         });
 
 

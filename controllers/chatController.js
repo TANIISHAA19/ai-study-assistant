@@ -1,5 +1,7 @@
 import ai from "../config/gemini.js";
 
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 export const chatWithAI = async (req, res) => {
   try {
     const { message } = req.body;
@@ -10,20 +12,48 @@ export const chatWithAI = async (req, res) => {
       });
     }
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
-      contents: message,
-    });
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader("Transfer-Encoding", "chunked");
 
-    res.json({
-      reply: response.text,
-    });
+    let response;
+
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        response = await ai.models.generateContentStream({
+          model: "gemini-3.5-flash-lite",
+          contents: message,
+        });
+
+        break;
+
+      } catch (error) {
+        console.error(`Gemini attempt ${attempt} failed:`, error.message);
+
+        if (error.status === 503 && attempt < 3) {
+          await sleep(2000);
+        } else {
+          throw error;
+        }
+      }
+    }
+
+    for await (const chunk of response) {
+      if (chunk.text) {
+        res.write(chunk.text);
+      }
+    }
+
+    res.end();
 
   } catch (error) {
     console.error("Chat Error:", error);
 
-    res.status(500).json({
-      error: error.message,
-    });
+    if (!res.headersSent) {
+      res.status(500).json({
+        error: error.message,
+      });
+    } else {
+      res.end();
+    }
   }
 };
