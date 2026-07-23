@@ -37,11 +37,34 @@ export const chatWithAI = async (req, res) => {
       }
     }
 
-    for await (const chunk of response) {
-      if (chunk.text) {
-        res.write(chunk.text);
-      }
-    }
+   let firstChunk = true;
+
+for await (const chunk of response) {
+  let text = chunk.text ?? "";
+
+  if (firstChunk) {
+    // Remove leading dots and whitespace from the first streamed chunk
+    text = text.replace(/^[.\s]+/, "");
+    firstChunk = false;
+  }
+
+     if (text) {
+    res.write(text);
+     }
+     }
+     for await (const chunk of response) {
+     let text = chunk.text ?? "";
+
+     if (firstChunk) {
+    // Remove leading dots and whitespace from the first streamed chunk
+    text = text.replace(/^[.\s]+/, "");
+    firstChunk = false;
+  }
+
+  if (text) {
+    res.write(text);
+       }
+        }
 
     res.end();
 
