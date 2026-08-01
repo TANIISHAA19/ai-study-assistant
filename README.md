@@ -168,7 +168,7 @@ Before running the project, make sure you have installed:
 Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/ai-study-assistant.git
+git clone https://github.com/TANIISHAA19/ai-study-assistant.git
 ```
 
 Move into the project directory
